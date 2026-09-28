@@ -1,0 +1,11 @@
+# Données
+data/raw/*
+data/processed/*
+
+# Fichiers R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Système
+.DS_Store
