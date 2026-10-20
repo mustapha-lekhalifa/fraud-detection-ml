@@ -15,223 +15,62 @@
 # - les valeurs possibles des variables binaires ;
 # - la cohérence des variables catégorielles encodées ;
 # - la distribution des variables numériques.
-# ============================================================
 
 
-# ============================================================
-# 1. CHARGEMENT DES DONNÉES
-# ============================================================
-#
-# Objectif :
-# Importer le jeu de données CSV dans R afin de pouvoir
-# réaliser les différentes analyses.
-#
-# read.csv() permet de lire un fichier CSV et de le transformer
-# en data.frame, ici nommé "data".
-# ============================================================
 
 data <- read.csv("data/raw/Processed_data_FD.csv")
 
 
-# View() permet d'afficher le jeu de données sous forme de
-# tableau dans RStudio afin d'observer directement les lignes
-# et les colonnes.
-#
-# Cette commande est surtout utile pour une première vérification
-# visuelle des données.
-# ============================================================
 
 View(data)
 
 
 
-# ============================================================
-# 2. DIMENSIONS DU JEU DE DONNÉES
-# ============================================================
-#
-# Objectif :
-# Déterminer le nombre d'observations (lignes) et de variables
-# (colonnes) présentes dans le jeu de données.
-#
-# dim() retourne :
-# - le nombre de lignes ;
-# - le nombre de colonnes.
-#
-# Ici, cela permet notamment de vérifier que le jeu de données
-# contient bien environ 1,5 million de transactions et
-# 21 variables.
-# ============================================================
+
 
 dim(data)
 
 
 
-# ============================================================
-# 3. STRUCTURE ET VARIABLES DU JEU DE DONNÉES
-# ============================================================
-#
-# Objectif :
-# Comprendre comment les variables sont stockées dans R et
-# identifier leur structure.
-#
-# str() permet d'obtenir :
-# - le nombre d'observations ;
-# - le nombre de variables ;
-# - le nom de chaque variable ;
-# - le type de stockage de chaque variable ;
-# - quelques premières valeurs.
-#
-# Attention :
-# le type affiché par R (num, int...) correspond au type de
-# stockage informatique et ne suffit pas à déterminer le rôle
-# statistique de la variable.
-# ============================================================
+
 
 str(data)
 
 
 
-# names() permet d'afficher uniquement les noms des variables.
-#
-# Cette commande est utile pour :
-# - connaître précisément les noms utilisés dans R ;
-# - repérer la variable cible ;
-# - sélectionner certaines variables pour les analyses suivantes.
-# ============================================================
 
 names(data)
 
 
 
-# ============================================================
-# 4. EXPLORATION DE LA VARIABLE CIBLE
-# ============================================================
-#
-# Objectif :
-# Identifier la répartition entre les deux classes de la variable
-# cible "Fraudulent Transaction".
-#
-# La variable cible prend deux valeurs :
-# - 0 : transaction légitime ;
-# - 1 : transaction frauduleuse.
-#
-# Le problème étudié est donc un problème de classification
-# binaire.
-# ============================================================
 
 table(data$Fraudulent.Transaction..Yes.No.)
 
 
 
-# prop.table() permet de transformer les effectifs en proportions.
-#
-# Cette commande permet donc de mesurer la proportion de chaque
-# classe dans l'ensemble des transactions.
-#
-# Elle est particulièrement importante ici pour vérifier si les
-# transactions frauduleuses sont minoritaires par rapport aux
-# transactions légitimes.
-# ============================================================
 
 prop.table(table(data$Fraudulent.Transaction..Yes.No.))
 
 
 
-# ============================================================
-# 5. QUALITÉ DES DONNÉES
-# ============================================================
-#
-# Objectif :
-# Vérifier si le jeu de données contient des problèmes de qualité
-# avant de poursuivre l'analyse.
-#
-# Nous vérifions ici notamment :
-# - les valeurs manquantes ;
-# - les lignes dupliquées ;
-# - les valeurs générales des variables.
-# ============================================================
 
 
-# ------------------------------------------------------------
-# 5.1 Valeurs manquantes
-# ------------------------------------------------------------
-#
-# is.na() identifie les valeurs manquantes.
-#
-# colSums() compte ensuite le nombre de valeurs manquantes
-# dans chaque colonne.
-#
-# Cette vérification permet de savoir si certaines variables
-# nécessitent un traitement des données manquantes.
-# ============================================================
+
+
 
 colSums(is.na(data))
 
 
 
-# ------------------------------------------------------------
-# 5.2 Lignes dupliquées
-# ------------------------------------------------------------
-#
-# duplicated() identifie les lignes qui sont des duplications
-# exactes d'une ligne précédente.
-#
-# sum() permet ensuite de compter le nombre total de lignes
-# dupliquées.
-#
-# Cette vérification permet de détecter d'éventuels doublons
-# exacts dans le jeu de données.
-# ============================================================
 
 sum(duplicated(data))
 
 
 
-# ------------------------------------------------------------
-# 5.3 Résumé statistique général
-# ------------------------------------------------------------
-#
-# summary() fournit un résumé statistique des variables.
-#
-# Pour les variables numériques, on obtient notamment :
-# - minimum ;
-# - premier quartile ;
-# - médiane ;
-# - moyenne ;
-# - troisième quartile ;
-# - maximum.
-#
-# Pour les variables binaires, cela permet également d'observer
-# leur répartition.
-#
-# Cette commande donne donc une première vision globale des
-# distributions et des valeurs prises par les variables.
-# ============================================================
+
 
 summary(data)
 
-
-
-# ============================================================
-# 6. VÉRIFICATION DES VARIABLES BINAIRES ET CATÉGORIELLES
-# ============================================================
-#
-# Objectif :
-# Vérifier les variables codées sous forme binaire (0/1) et
-# contrôler que leurs valeurs sont cohérentes.
-#
-# Dans ce jeu de données, certaines variables catégorielles ont
-# été transformées en plusieurs variables binaires (encodage
-# one-hot).
-#
-# Exemple :
-# Product Category est représentée par plusieurs colonnes :
-# Clothing, Electronics, Health & Beauty, etc.
-# ============================================================
-
-
-# Liste des variables qui doivent contenir uniquement 0 et 1.
-# ============================================================
 
 binary_vars <- c(
   "Fraudulent.Transaction..Yes.No.",
@@ -252,37 +91,11 @@ binary_vars <- c(
 
 
 
-# unique() permet d'identifier les différentes valeurs présentes
-# dans chaque variable.
-#
-# Ici, nous vérifions que les variables binaires contiennent
-# uniquement les valeurs 0 et 1 et qu'il n'existe pas de valeur
-# inattendue.
-# ============================================================
 
 lapply(data[binary_vars], unique)
 
 
 
-# ------------------------------------------------------------
-# 6.1 Cohérence des catégories de produits
-# ------------------------------------------------------------
-#
-# Les cinq variables suivantes représentent les catégories
-# de produits sous forme one-hot.
-#
-# Pour chaque transaction, une seule catégorie de produit doit
-# être sélectionnée.
-#
-# rowSums() calcule, pour chaque ligne, le nombre de catégories
-# ayant la valeur 1.
-#
-# On utilise ensuite table() pour observer la distribution
-# de cette somme.
-#
-# Si toutes les lignes donnent 1, cela signifie que chaque
-# transaction possède exactement une catégorie de produit.
-# ============================================================
 
 product_vars <- c(
   "Product.Category...Clothing",
@@ -296,19 +109,6 @@ table(rowSums(data[product_vars]))
 
 
 
-# ------------------------------------------------------------
-# 6.2 Cohérence des méthodes de paiement
-# ------------------------------------------------------------
-#
-# Les méthodes de paiement sont également encodées en one-hot.
-#
-# Chaque transaction doit correspondre à une seule méthode
-# de paiement.
-#
-# On vérifie donc que la somme des variables de paiement vaut
-# exactement 1 pour chaque transaction.
-# ============================================================
-
 payment_vars <- c(
   "Payment.Method...PayPal",
   "Payment.Method...Bank.Transfer",
@@ -320,18 +120,7 @@ table(rowSums(data[payment_vars]))
 
 
 
-# ------------------------------------------------------------
-# 6.3 Cohérence du type d'appareil
-# ------------------------------------------------------------
-#
-# Les appareils utilisés sont représentés par trois variables :
-# Desktop, Mobile et Tablet.
-#
-# Une transaction doit être associée à un seul type d'appareil.
-#
-# On vérifie donc que la somme des trois variables vaut 1
-# pour chaque transaction.
-# ============================================================
+
 
 device_vars <- c(
   "Device.Used...Desktop",
@@ -343,133 +132,52 @@ table(rowSums(data[device_vars]))
 
 
 
-# ------------------------------------------------------------
-# 6.4 Répartition de Same.ship.and.bill
-# ------------------------------------------------------------
-#
-# Cette variable indique si l'adresse de livraison et l'adresse
-# de facturation sont identiques.
-#
-# - 0 : les adresses sont différentes ;
-# - 1 : les adresses sont identiques.
-#
-# table() donne les effectifs de chaque modalité.
-# ============================================================
+
 
 table(data$Same.ship.and.bill)
 
 
 
-# prop.table() donne les proportions correspondantes.
-#
-# Cela permet de voir quelle proportion des transactions possède
-# une adresse de livraison identique à l'adresse de facturation.
-# ============================================================
+
 
 prop.table(table(data$Same.ship.and.bill))
 
 
 
-# ------------------------------------------------------------
-# 6.5 Répartition des catégories de produits
-# ------------------------------------------------------------
-#
-# colSums() additionne chaque variable one-hot.
-#
-# Comme chaque colonne représente une catégorie de produit,
-# la somme correspond au nombre de transactions appartenant
-# à cette catégorie.
-# ============================================================
+
 
 colSums(data[product_vars])
 
 
 
-# prop.table() permet ensuite d'obtenir la proportion de chaque
-# catégorie dans l'ensemble des transactions.
-# ============================================================
+
 
 prop.table(colSums(data[product_vars]))
 
 
 
-# ------------------------------------------------------------
-# 6.6 Répartition des méthodes de paiement
-# ------------------------------------------------------------
-#
-# Même principe que précédemment :
-# colSums() donne le nombre de transactions pour chaque méthode
-# de paiement.
-# ============================================================
+
 
 colSums(data[payment_vars])
 
 
 
-# Les proportions permettent de comparer la fréquence des
-# différentes méthodes de paiement.
-# ============================================================
+
 
 prop.table(colSums(data[payment_vars]))
 
 
 
-# ------------------------------------------------------------
-# 6.7 Répartition des appareils utilisés
-# ------------------------------------------------------------
-#
-# colSums() donne le nombre de transactions effectuées depuis
-# chaque type d'appareil.
-# ============================================================
-
 colSums(data[device_vars])
 
 
 
-# prop.table() donne les proportions correspondantes.
-# ============================================================
+
 
 prop.table(colSums(data[device_vars]))
 
 
 
-# ============================================================
-# 7. EXPLORATION UNIVARIÉE
-# ============================================================
-#
-# Objectif :
-# Étudier chaque variable individuellement afin de comprendre
-# sa distribution et les valeurs qu'elle prend.
-#
-# Cette étape permet notamment d'identifier :
-# - les variables continues ou discrètes ;
-# - les variables concentrées sur certaines valeurs ;
-# - les distributions asymétriques ;
-# - les distributions relativement homogènes ;
-# - les variables possédant peu de niveaux ;
-# - d'éventuelles valeurs inhabituelles.
-#
-# Les variables numériques du jeu de données sont normalisées
-# entre 0 et 1. Les valeurs observées ne correspondent donc pas
-# directement aux unités originales (euros, années, jours, etc.).
-# ============================================================
-
-
-# ------------------------------------------------------------
-# 7.1 Distribution du montant des transactions
-# ------------------------------------------------------------
-#
-# hist() permet de représenter graphiquement la distribution
-# du montant des transactions.
-#
-# Le graphique permet d'observer la concentration des valeurs
-# et la forme générale de la distribution.
-#
-# png() ouvre un fichier image dans lequel le graphique sera
-# enregistré.
-#
-# dev.off() ferme le fichier graphique et finalise son écriture.
-# ============================================================
 
 png("results/figures/distribution_transaction_amount.png",
     width = 1200,
@@ -484,14 +192,7 @@ dev.off()
 
 
 
-# ------------------------------------------------------------
-# 7.2 Distribution de la quantité achetée
-# ------------------------------------------------------------
-#
-# On représente la distribution de Quantity.Purchased afin
-# d'observer les valeurs effectivement présentes dans cette
-# variable.
-# ============================================================
+
 
 png("results/figures/distribution_quantity_purchased.png",
     width = 1200,
@@ -506,35 +207,19 @@ dev.off()
 
 
 
-# unique() permet d'identifier les différentes valeurs
-# réellement présentes dans Quantity.Purchased.
-#
-# Cette commande est particulièrement utile ici car une variable
-# stockée comme "num" peut néanmoins ne prendre qu'un nombre
-# limité de valeurs.
-# ============================================================
+
 
 unique(data$Quantity.Purchased)
 
 
 
-# table() permet de compter le nombre d'observations pour
-# chacune des valeurs de Quantity.Purchased.
-#
-# Cela permet de vérifier la fréquence de chaque niveau.
-# ============================================================
+
 
 table(data$Quantity.Purchased)
 
 
 
-# ------------------------------------------------------------
-# 7.3 Distribution de l'âge des clients
-# ------------------------------------------------------------
-#
-# On représente la distribution de Customer Age afin d'observer
-# comment les valeurs sont réparties sur l'intervalle [0,1].
-# ============================================================
+
 
 png("results/figures/distribution_age_client.png",
     width = 1200,
@@ -549,13 +234,7 @@ dev.off()
 
 
 
-# ------------------------------------------------------------
-# 7.4 Distribution de l'âge des comptes
-# ------------------------------------------------------------
-#
-# L'histogramme permet d'observer la répartition de Account Age
-# et d'identifier une éventuelle concentration des valeurs.
-# ============================================================
+
 
 png("results/figures/Distribution de l'âge des comptes.png",
     width = 1200,
@@ -570,14 +249,7 @@ dev.off()
 
 
 
-# ------------------------------------------------------------
-# 7.5 Distribution de l'heure de transaction
-# ------------------------------------------------------------
-#
-# On examine la distribution de Transaction Hour of Day afin
-# d'observer comment les transactions sont réparties sur
-# l'intervalle étudié.
-# ============================================================
+
 
 png("results/figures/Distribution de l'heure de transaction.png",
     width = 1200,
@@ -592,13 +264,7 @@ dev.off()
 
 
 
-# ------------------------------------------------------------
-# 7.6 Distribution du jour de transaction
-# ------------------------------------------------------------
-#
-# L'histogramme permet d'observer la répartition de la variable
-# Transaction Day.
-# ============================================================
+
 
 png("results/figures/Distribution de jour de transaction.png",
     width = 1200,
@@ -613,13 +279,7 @@ dev.off()
 
 
 
-# ------------------------------------------------------------
-# 7.7 Distribution de Location_Freq
-# ------------------------------------------------------------
-#
-# On représente la distribution de Location_Freq afin d'observer
-# sa concentration et sa forme générale.
-# ============================================================
+
 
 png("results/figures/Distribution de la fréquence de localisation.png",
     width = 1200,
@@ -633,67 +293,7 @@ hist(data$Location_Freq,
 dev.off()
 
 
-# ============================================================
-# PARTIE 8 — EXPLORATION BIVARIÉE
-# ============================================================
-#
-# OBJECTIF :
-#
-# Après avoir étudié chaque variable individuellement dans la
-# partie 7 (exploration univariée), nous allons maintenant
-# étudier les relations entre les variables explicatives et
-# notre variable cible :
-#
-# Fraudulent.Transaction..Yes.No.
-#
-# Cette variable cible indique :
-# - 0 : transaction non frauduleuse ;
-# - 1 : transaction frauduleuse.
-#
-# L'objectif est de rechercher d'éventuelles différences entre
-# les transactions frauduleuses et non frauduleuses.
-#
-# Pour les variables catégorielles, nous utiliserons :
-# - des tableaux croisés ;
-# - des taux de fraude par catégorie ;
-# - des graphiques en barres.
-#
-# Pour les variables numériques, nous utiliserons :
-# - des statistiques descriptives ;
-# - des boxplots pour comparer les distributions.
-#
-# IMPORTANT :
-# Un taux de fraude est calculé en divisant le nombre de
-# transactions frauduleuses d'une catégorie par le nombre total
-# de transactions de cette même catégorie.
-#
-# Cela permet de comparer les catégories équitablement,
-# même si leurs effectifs sont différents.
-# ============================================================
 
-
-# ============================================================
-# 8.1 — FRAUDE SELON LA CATÉGORIE DE PRODUIT
-# ============================================================
-#
-# OBJECTIF :
-#
-# Étudier si le taux de fraude varie selon la catégorie
-# de produit achetée.
-#
-# Les catégories de produits sont représentées par des
-# variables binaires (one-hot encoding).
-#
-# Pour chaque catégorie :
-# - 1 signifie que la transaction concerne cette catégorie ;
-# - 0 signifie qu'elle ne concerne pas cette catégorie.
-#
-# Nous allons comparer chacune de ces catégories avec
-# la variable cible.
-# ============================================================
-
-
-# 1. Identification des variables de catégories de produits
 
 product_vars <- c(
   "Product.Category...Clothing",
@@ -704,18 +304,6 @@ product_vars <- c(
 )
 
 
-# 2. Tableaux croisés entre chaque catégorie et la fraude
-#
-# Pour chaque catégorie, le tableau présente :
-# - les transactions non frauduleuses (0) ;
-# - les transactions frauduleuses (1).
-#
-# Les lignes correspondent à l'absence (0) ou à la présence (1)
-# de la catégorie.
-#
-# Ces tableaux permettent de connaître les effectifs,
-# mais ne suffisent pas à comparer directement les taux
-# de fraude entre les catégories.
 
 for (var in product_vars) {
   
@@ -730,20 +318,6 @@ for (var in product_vars) {
 }
 
 
-# 3. Calcul du taux de fraude pour chaque catégorie
-#
-# Pour chaque catégorie, nous calculons :
-#
-# Taux de fraude =
-# Nombre de transactions frauduleuses dans la catégorie
-# ------------------------------------------------------ x 100
-# Nombre total de transactions dans la catégorie
-#
-# La condition data[[var]] == 1 permet de sélectionner
-# uniquement les transactions appartenant à la catégorie.
-#
-# La condition Fraudulent.Transaction..Yes.No. == 1 permet
-# ensuite de compter uniquement les fraudes.
 
 product_fraud_rates <- data.frame(
   Categorie = product_vars,
@@ -770,11 +344,7 @@ product_fraud_rates <- data.frame(
 print(product_fraud_rates)
 
 
-# 4. Préparation des noms pour le graphique
-#
-# Les noms des variables dans le jeu de données sont assez longs.
-# Nous les remplaçons par des noms plus lisibles pour faciliter
-# l'interprétation du graphique.
+
 
 product_fraud_rates$Categorie <- c(
   "Clothing",
@@ -785,10 +355,7 @@ product_fraud_rates$Categorie <- c(
 )
 
 
-# 5. Représentation graphique des taux de fraude
-#
-# Chaque barre représente le taux de fraude d'une catégorie.
-# La hauteur des barres permet de comparer les catégories.
+
 
 png(
   "results/figures/fraud_rate_by_product_category.png",
@@ -810,21 +377,7 @@ barplot(
 dev.off()
 
 
-# ============================================================
-# 8.2 — FRAUDE SELON LE MOYEN DE PAIEMENT
-# ============================================================
-#
-# OBJECTIF :
-#
-# Étudier si certains moyens de paiement présentent des taux
-# de fraude différents.
-#
-# Comme pour les catégories de produits, les moyens de paiement
-# sont représentés par des variables binaires.
-#
-# Chaque transaction possède un moyen de paiement parmi les
-# catégories étudiées.
-# ============================================================
+
 
 
 # 1. Identification des variables correspondant aux moyens
@@ -919,23 +472,7 @@ barplot(
 dev.off()
 
 
-# ============================================================
-# 8.3 — FRAUDE SELON LE TYPE D'APPAREIL
-# ============================================================
-#
-# OBJECTIF :
-#
-# Vérifier si le type d'appareil utilisé pour effectuer
-# une transaction est associé à des différences de taux
-# de fraude.
-#
-# Trois catégories sont disponibles :
-# - Desktop ;
-# - Mobile ;
-# - Tablet.
-#
-# Nous allons comparer leurs taux de fraude.
-# ============================================================
+
 
 
 # 1. Identification des variables correspondant aux appareils
@@ -1022,22 +559,7 @@ barplot(
 dev.off()
 
 
-# ============================================================
-# 8.4 — FRAUDE SELON LA CORRESPONDANCE DES ADRESSES
-# ============================================================
-#
-# OBJECTIF :
-#
-# Étudier la relation entre la correspondance de l'adresse
-# de livraison et de l'adresse de facturation et la présence
-# de fraude.
-#
-# La variable Same.ship.and.bill est binaire :
-# - 0 : les adresses sont différentes ;
-# - 1 : les adresses sont identiques.
-#
-# Nous allons comparer les taux de fraude dans ces deux groupes.
-# ============================================================
+
 
 
 # 1. Tableau croisé entre la correspondance des adresses
@@ -1109,22 +631,7 @@ barplot(
 dev.off()
 
 
-# ============================================================
-# 8.5 — FRAUDE SELON LE MONTANT DE LA TRANSACTION
-# ============================================================
-#
-# OBJECTIF :
-#
-# Contrairement aux variables précédentes, le montant de la
-# transaction est une variable numérique.
-#
-# Nous voulons déterminer si les montants des transactions
-# frauduleuses présentent une distribution différente de
-# celle des transactions non frauduleuses.
-#
-# Pour cela, nous allons calculer plusieurs statistiques
-# descriptives et représenter les distributions avec un boxplot.
-# ============================================================
+
 
 
 # 1. Statistiques descriptives du montant selon la fraude
@@ -1194,23 +701,7 @@ boxplot(
 dev.off()
 
 
-# ============================================================
-# 8.6 — FRAUDE SELON LA QUANTITÉ ACHETÉE
-# ============================================================
-#
-# OBJECTIF :
-#
-# Étudier si le taux de fraude varie selon la quantité achetée.
-#
-# Bien que Quantity.Purchased soit stockée comme une variable
-# numérique, nous avons observé dans la partie univariée
-# qu'elle possède seulement cinq valeurs distinctes :
-#
-# 0 ; 0.25 ; 0.50 ; 0.75 ; 1
-#
-# Nous pouvons donc comparer directement les taux de fraude
-# associés à chacune de ces valeurs.
-# ============================================================
+
 
 
 # 1. Tableau croisé entre la quantité achetée et la fraude
@@ -1285,21 +776,7 @@ barplot(
 dev.off()
 
 
-# ============================================================
-# 8.7 — FRAUDE SELON L'ÂGE DU CLIENT
-# ============================================================
-#
-# OBJECTIF :
-#
-# Comparer l'âge des clients associés aux transactions
-# frauduleuses et non frauduleuses.
-#
-# La variable Customer.Age..Years. est numérique et normalisée.
-#
-# Nous allons utiliser des statistiques descriptives pour
-# comparer les deux groupes, puis un boxplot pour visualiser
-# leurs distributions.
-# ============================================================
+
 
 
 # 1. Statistiques descriptives de l'âge selon la fraude
@@ -1351,22 +828,7 @@ boxplot(
 dev.off()
 
 
-# ============================================================
-# 8.8 — FRAUDE SELON L'ANCIENNETÉ DU COMPTE
-# ============================================================
-#
-# OBJECTIF :
-#
-# Vérifier si l'ancienneté du compte présente des différences
-# entre les transactions frauduleuses et non frauduleuses.
-#
-# Cette variable peut être intéressante pour notre problème :
-# un compte récemment créé pourrait présenter un comportement
-# différent d'un compte utilisé depuis longtemps.
-#
-# Il s'agit ici d'une piste à explorer, et non d'une conclusion
-# sur les causes de la fraude.
-# ============================================================
+
 
 
 # 1. Statistiques descriptives selon la présence de fraude
@@ -1419,30 +881,10 @@ boxplot(
 dev.off()
 
 
-# ============================================================
-# 8.9 — FRAUDE SELON L'HEURE ET LE JOUR DE TRANSACTION
-# ============================================================
-#
-# OBJECTIF :
-#
-# Étudier les caractéristiques temporelles des transactions.
-#
-# Nous allons distinguer deux variables :
-# - Transaction.Hour.of.Day : heure de transaction ;
-# - Transaction.Day : jour de transaction.
-#
-# Nous comparerons séparément leurs distributions selon
-# la présence ou l'absence de fraude.
-# ============================================================
 
 
-# ------------------------------------------------------------
-# 8.9.1 — FRAUDE SELON L'HEURE DE TRANSACTION
-# ------------------------------------------------------------
-#
-# Nous cherchons à observer si les transactions frauduleuses
-# sont davantage concentrées sur certaines valeurs de l'heure.
-# ============================================================
+
+
 
 
 # 1. Statistiques descriptives selon la présence de fraude
@@ -1491,15 +933,6 @@ boxplot(
 dev.off()
 
 
-# ------------------------------------------------------------
-# 8.9.2 — FRAUDE SELON LE JOUR DE TRANSACTION
-# ------------------------------------------------------------
-#
-# Nous étudions maintenant le jour de transaction.
-#
-# L'objectif est de vérifier si la distribution de cette
-# variable présente des différences selon la présence de fraude.
-# ============================================================
 
 
 # 1. Statistiques descriptives selon la présence de fraude
@@ -1548,19 +981,7 @@ boxplot(
 dev.off()
 
 
-# ============================================================
-# 8.10 — FRAUDE SELON LA FRÉQUENCE DE LOCALISATION
-# ============================================================
-#
-# OBJECTIF :
-#
-# Étudier la variable Location_Freq selon la présence de fraude.
-#
-# Nous cherchons à déterminer si la fréquence de localisation
-# présente une distribution différente entre les deux groupes.
-#
-# Nous utiliserons des statistiques descriptives et un boxplot.
-# ============================================================
+
 
 
 # 1. Statistiques descriptives selon la présence de fraude
@@ -1612,65 +1033,7 @@ boxplot(
 dev.off()
 
 
-# ============================================================
-# 8.11 — SYNTHÈSE DE L'EXPLORATION BIVARIÉE
-# ============================================================
-#
-# L'exploration bivariée a permis de comparer chaque variable
-# explicative avec la variable cible.
-#
-# Les résultats descriptifs montrent notamment :
-#
-# - Des taux de fraude relativement proches selon la catégorie
-#   de produit.
-# - Des taux de fraude relativement proches selon le moyen
-#   de paiement.
-# - Des taux de fraude relativement proches selon le type
-#   d'appareil.
-# - Des taux de fraude proches selon la correspondance
-#   des adresses.
-# - Des différences de distribution pour le montant
-#   des transactions.
-# - Des taux de fraude proches selon la quantité achetée.
-# - Des distributions d'âge du client relativement proches.
-# - Une différence descriptive marquée pour l'ancienneté
-#   du compte.
-# - Une différence descriptive marquée pour l'heure
-#   de transaction.
-# - Des distributions proches pour le jour de transaction.
-# - Des distributions proches pour la fréquence de localisation.
-#
-# Ces résultats permettent d'identifier des pistes pour
-# la modélisation.
-#
-# Cependant, une variable qui présente peu de différence
-# lorsqu'elle est étudiée seule peut devenir informative
-# lorsqu'elle est combinée avec d'autres variables.
-#
-# Nous ne devons donc pas supprimer automatiquement les
-# variables qui semblent peu discriminantes individuellement.
-#
-# ============================================================
 
-
-# ============================================================
-# PARTIE 9 — SYNTHÈSE GÉNÉRALE ET CONCLUSION DE L'EDA
-# ============================================================
-#
-# OBJECTIF :
-#
-# Faire le bilan de l'exploration univariée et bivariée.
-#
-# Cette synthèse permet de conserver les principales
-# informations sur le jeu de données et de préparer
-# la phase suivante : le preprocessing.
-# ============================================================
-
-
-# ------------------------------------------------------------
-# 9.1 — Dimensions du jeu de données
-# ------------------------------------------------------------
-#
 # Nous rappelons le nombre d'observations et de variables
 # afin de présenter les dimensions du jeu de données.
 
@@ -1681,15 +1044,7 @@ cat("\nDimensions du jeu de données :\n")
 print(dim(data))
 
 
-# ------------------------------------------------------------
-# 9.2 — Répartition de la variable cible
-# ------------------------------------------------------------
-#
-# Nous rappelons les effectifs et les proportions des deux
-# classes afin de mettre en évidence le déséquilibre éventuel.
-#
-# Cette information sera importante lors de la modélisation
-# et de l'évaluation des performances.
+
 
 cat("\nRépartition de la variable cible :\n")
 
@@ -1707,17 +1062,7 @@ target_percentages <- prop.table(target_counts) * 100
 print(round(target_percentages, 2))
 
 
-# ------------------------------------------------------------
-# 9.3 — Bilan de la qualité des données
-# ------------------------------------------------------------
-#
-# Nous rappelons les vérifications effectuées au cours
-# de l'exploration :
-# - valeurs manquantes ;
-# - doublons exacts.
-#
-# Ces contrôles permettent de conserver une trace de la
-# qualité générale des données avant leur préparation.
+
 
 cat("\nNombre total de valeurs manquantes :\n")
 
@@ -1731,7 +1076,7 @@ print(sum(duplicated(data)))
 
 # ------------------------------------------------------------
 # 9.4 — Principales caractéristiques observées
-# ------------------------------------------------------------
+
 #
 # Les analyses précédentes ont permis de retenir les éléments
 # suivants :
@@ -1766,7 +1111,6 @@ print(sum(duplicated(data)))
 
 # ------------------------------------------------------------
 # 9.5 — Conséquences pour la phase de modélisation
-# ------------------------------------------------------------
 #
 # Plusieurs points devront être pris en compte pour la suite :
 #
@@ -1795,7 +1139,7 @@ print(sum(duplicated(data)))
 
 # ------------------------------------------------------------
 # 9.6 — Limite liée à la nature du jeu de données
-# ------------------------------------------------------------
+
 #
 # Le jeu de données utilisé est synthétique.
 #
@@ -1808,9 +1152,9 @@ print(sum(duplicated(data)))
 # sans validation sur des données réelles indépendantes.
 
 
-# ============================================================
+
 # CONCLUSION GÉNÉRALE DE L'EXPLORATION DES DONNÉES
-# ============================================================
+# 
 #
 # Cette phase d'exploration nous a permis de comprendre
 # la structure du jeu de données, d'examiner sa qualité
@@ -1823,7 +1167,3 @@ print(sum(duplicated(data)))
 # phase du projet : la préparation des données (preprocessing),
 # suivie de la construction et de l'évaluation des modèles
 # de classification.
-#
-# ============================================================
-# FIN DU SCRIPT 01 — EXPLORATION DES DONNÉES
-# ============================================================
