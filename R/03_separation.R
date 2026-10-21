@@ -44,3 +44,4 @@ length(y_test)
 
 prop.table(table(y_train))*100
 prop.table(table(y_test))*100
+
