@@ -32,4 +32,3 @@ length(y)
 unique(y)
 
 "Fraudulent.Transaction..Yes.No." %in% names(x)
-
