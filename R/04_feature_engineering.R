@@ -134,3 +134,79 @@ round(c(
   F1_score = f1_A * 100,
   Accuracy = accuracy_A * 100
 ), 2)
+
+
+
+# on va appliquer le modele apres le feature etape B 
+
+donnees_train_B <- data.frame(x_train)
+
+donnees_train_B$fraude <- as.integer(y_train)
+
+modele_B <- glm(
+  fraude ~ .,
+  data = donnees_train_B,
+  family = binomial()
+)
+
+
+
+donnees_test_B <- data.frame(x_test)
+
+proba_B <- predict(
+  modele_B,
+  newdata = donnees_test_B,
+  type = "response"
+)
+
+head(proba_B)
+
+pred_B <- ifelse(proba_B>=0.5, 1, 0)
+
+
+# Donc matrice de confusion
+
+table(
+  prediction = pred_B,
+  Reel = y_test
+)
+
+
+
+TN <- 283985
+FN <- 13198
+FP <- 321
+TP <- 1814
+
+
+precision_B <- TP / (TP + FP)
+
+recall_B <- TP / (TP + FN)
+
+f1_B <- 2 * precision_B *recall_B / (precision_B + recall_B)
+
+accuracy_B <- (TP + TN)/( TP + TN + FN + FP)
+
+
+round(c(
+  Precission <- precision_B * 100,
+  Recall <- recall_B * 100,
+  F1_score <- f1_B * 100,
+  Accuracy <- accuracy_B * 100
+),2)
+
+
+
+comparaison <- data.frame(
+  Modele = c("A - Sans feature engineering",
+             "B - Avec feature engineering"),
+  Precision = c(precision_A, precision_B) * 100,
+  Rappel = c(recall_A, recall_B) * 100,
+  F1_score = c(f1_A, f1_B) * 100,
+  Accuracy = c(accuracy_A, accuracy_B) * 100
+)
+
+comparaison[, -1] <- round(comparaison[, -1], 2)
+
+comparaison
+
