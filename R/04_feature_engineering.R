@@ -318,7 +318,6 @@ tapply(
 
 
 
-png("transaction_amount_feature.png", width = 600, height = 662)
 
 boxplot(
   x_train$Transaction.Amount.... ~ y_train,
@@ -328,7 +327,6 @@ boxplot(
   main = "Montant selon la présence de fraude"
 )
 
-dev.off()
 
 
 
