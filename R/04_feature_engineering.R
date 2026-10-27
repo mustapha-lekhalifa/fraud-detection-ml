@@ -1,15 +1,10 @@
-
-# Chargement du jeu de données
-# Cette ligne lit le fichier CSV pour pouvoir explorer les données.
-# Attention : les objets x_train, x_test, y_train et y_test doivent
-# déjà avoir été créés dans les étapes précédentes du projet.
 data <- read.csv("Processed_data_FD.csv")
 
-# Affichage du jeu de données dans une fenêtre pour explorer son contenu.
+
 View(data)
 
 
-# Vérification des variables disponibles dans les données d'entraînement.
+
 names(x_train)
 
 # Résumé statistique de la variable représentant l'heure normalisée.
