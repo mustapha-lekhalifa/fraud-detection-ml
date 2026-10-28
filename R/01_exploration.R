@@ -1,73 +1,23 @@
-# ============================================================
-# PARTIE 1 — EXPLORATION DES DONNÉES
-# ============================================================
-#
-# Objectif :
-# Comprendre la structure, la qualité et les principales
-# caractéristiques du jeu de données avant de passer à la
-# préparation des données et à la modélisation.
-#
-# L'exploration permet notamment de vérifier :
-# - le nombre d'observations et de variables ;
-# - la structure et le type des variables ;
-# - la variable cible et sa répartition ;
-# - la qualité des données ;
-# - les valeurs possibles des variables binaires ;
-# - la cohérence des variables catégorielles encodées ;
-# - la distribution des variables numériques.
-
-
-
 data <- read.csv("data/raw/Processed_data_FD.csv")
-
-
 
 View(data)
 
-
-
-
-
 dim(data)
-
-
-
-
 
 str(data)
 
-
-
-
 names(data)
-
-
 
 
 table(data$Fraudulent.Transaction..Yes.No.)
 
 
-
-
 prop.table(table(data$Fraudulent.Transaction..Yes.No.))
-
-
-
-
-
-
-
 
 colSums(is.na(data))
 
 
-
-
 sum(duplicated(data))
-
-
-
-
 
 summary(data)
 
@@ -90,11 +40,7 @@ binary_vars <- c(
 )
 
 
-
-
 lapply(data[binary_vars], unique)
-
-
 
 
 product_vars <- c(
@@ -106,7 +52,6 @@ product_vars <- c(
 )
 
 table(rowSums(data[product_vars]))
-
 
 
 payment_vars <- c(
@@ -131,52 +76,28 @@ device_vars <- c(
 table(rowSums(data[device_vars]))
 
 
-
-
-
 table(data$Same.ship.and.bill)
-
-
-
 
 
 prop.table(table(data$Same.ship.and.bill))
 
 
-
-
-
 colSums(data[product_vars])
-
-
-
 
 
 prop.table(colSums(data[product_vars]))
 
 
-
-
-
 colSums(data[payment_vars])
-
-
-
 
 
 prop.table(colSums(data[payment_vars]))
 
 
-
 colSums(data[device_vars])
 
 
-
-
-
 prop.table(colSums(data[device_vars]))
-
-
 
 
 png("results/figures/distribution_transaction_amount.png",
@@ -192,8 +113,6 @@ dev.off()
 
 
 
-
-
 png("results/figures/distribution_quantity_purchased.png",
     width = 1200,
     height = 800)
@@ -206,19 +125,10 @@ hist(data$Quantity.Purchased,
 dev.off()
 
 
-
-
-
 unique(data$Quantity.Purchased)
 
 
-
-
-
 table(data$Quantity.Purchased)
-
-
-
 
 
 png("results/figures/distribution_age_client.png",
@@ -233,9 +143,6 @@ hist(data$Customer.Age..Years.,
 dev.off()
 
 
-
-
-
 png("results/figures/Distribution de l'âge des comptes.png",
     width = 1200,
     height = 800)
@@ -247,10 +154,6 @@ hist(data$Account.Age..Days.,
 
 dev.off()
 
-
-
-
-
 png("results/figures/Distribution de l'heure de transaction.png",
     width = 1200,
     height = 800)
@@ -261,10 +164,6 @@ hist(data$Transaction.Hour.of.Day,
      breaks = 50)
 
 dev.off()
-
-
-
-
 
 png("results/figures/Distribution de jour de transaction.png",
     width = 1200,
@@ -278,9 +177,6 @@ hist(data$Transaction.Day,
 dev.off()
 
 
-
-
-
 png("results/figures/Distribution de la fréquence de localisation.png",
     width = 1200,
     height = 800)
@@ -291,9 +187,6 @@ hist(data$Location_Freq,
      breaks = 50)
 
 dev.off()
-
-
-
 
 product_vars <- c(
   "Product.Category...Clothing",
@@ -343,9 +236,6 @@ product_fraud_rates <- data.frame(
 
 print(product_fraud_rates)
 
-
-
-
 product_fraud_rates$Categorie <- c(
   "Clothing",
   "Electronics",
@@ -353,8 +243,6 @@ product_fraud_rates$Categorie <- c(
   "Home & Garden",
   "Toys & Games"
 )
-
-
 
 
 png(
@@ -375,9 +263,6 @@ barplot(
 )
 
 dev.off()
-
-
-
 
 
 # 1. Identification des variables correspondant aux moyens
@@ -631,9 +516,6 @@ barplot(
 dev.off()
 
 
-
-
-
 # 1. Statistiques descriptives du montant selon la fraude
 #
 # aggregate() permet ici de séparer les observations selon
@@ -776,9 +658,6 @@ barplot(
 dev.off()
 
 
-
-
-
 # 1. Statistiques descriptives de l'âge selon la fraude
 
 age_by_fraud <- aggregate(
@@ -826,10 +705,6 @@ boxplot(
 )
 
 dev.off()
-
-
-
-
 
 # 1. Statistiques descriptives selon la présence de fraude
 
@@ -881,12 +756,6 @@ boxplot(
 dev.off()
 
 
-
-
-
-
-
-
 # 1. Statistiques descriptives selon la présence de fraude
 
 hour_by_fraud <- aggregate(
@@ -931,8 +800,6 @@ boxplot(
 )
 
 dev.off()
-
-
 
 
 # 1. Statistiques descriptives selon la présence de fraude
