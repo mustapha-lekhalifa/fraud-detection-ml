@@ -66,12 +66,50 @@ sum(fitted(model_B)> 0.999999)
 summary(model_B)
 
 
-donnees_test_B <- data.frame(
+données_test_B <- data.frame(
   fraude = y_test,
   x_test
 )
 
-donnees_test_B$Transaction.Amount.... <- NULL
+données_test_B$Transaction.Amount.... <- NULL
 
 dim(donnees_train_B)
-dim(donnees_test_B)
+dim(données_test_B)
+
+probabilite_B <- predict(
+  model_B,
+  newdata = données_test_B,
+  type = "response"
+)
+
+head(probabilite_B)
+length(probabilite_B)
+summary(probabilite_B)
+
+classe_B <- ifelse(probabilite_B >= 0.5, 1, 0)
+
+table(classe_B)
+prop.table(table(classe_B))
+
+matrice_B <- table(
+  reel = y_test,
+  predict = classe_B
+)
+
+TN <- 283953
+FN <- 13122
+FP <- 352
+TP <- 1890
+
+
+precision <- TP / (TP +FP)
+Recall <- TP / ( TP + FN)
+F1_score <- (2 * precision * Recall)/(precision + Recall)
+Accuracy <- (TP + TN)/(TP + TN + FN + FP)
+
+round(c(
+  PR <- precision * 100,
+  RC <- Recall * 100,
+  F1 <- F1_score * 100,
+  ACC <- Accuracy * 100
+),2)
