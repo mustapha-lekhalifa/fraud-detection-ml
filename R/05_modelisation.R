@@ -229,3 +229,156 @@ round(c(
 ),2)
 
 
+#--------------------------------------------
+# Modele 3 : Random Forest
+
+
+library(ranger)
+
+donnees_random <- data.frame(
+  #transforme les classe 0 et 1 en categories
+  fraude = as.factor(y_train),
+  x_train
+)
+
+
+model_random <- ranger(
+  fraude ~ .,
+  data = donnees_random,
+  #construire l'arbre 
+  num.trees = 100,
+  
+  
+)
+
+
+donnees_random_test <- data.frame(
+  fraude = as.factor(y_test),
+  x_test
+)
+
+prediction_random <- predict(
+  model_random,
+  data = x_test
+)
+#recupere les classes predire
+classe_random <- prediction_random$predictions
+
+
+matrice_random <- table(
+  reel = y_test,
+  predict = classe_random
+)
+
+TN <- matrice_random["0","0"]
+FP <- matrice_random["0","1"]
+FN <- matrice_random["1","0"]
+TP <- matrice_random["1","1"]
+
+
+precision_random <- TP / ( TP + FP)
+recall_random <- TP/ (TP + FN)
+F1_score_random <- ( 2* precision_random * recall_random)/(precision_random + recall_random)
+Accuracy_random <- (TN + TP)/( TP + TN + FP + FN)
+
+round(c(
+  PR_r <- precision_random * 100,
+  RC_r <- recall_random * 100,
+  F1_r <- F1_score_random * 100,
+  AC_r <- Accuracy_random * 100
+),2)
+
+
+
+
+#--------------------------------------------
+# Modele 4 : Grandient Boosting
+
+library(xgboost)
+
+sapply(x_train, class)
+
+
+# Transforme les variables explicatives en matrice numérique
+x_train_matrix <- model.matrix(
+  ~ . - 1,
+  data = x_train
+)
+
+dim(x_train_matrix)
+
+# On fait le meme tranformation pour celui du test 
+x_test$Account.Age..Days.cat <- factor(
+  x_test$Account.Age..Days.cat,
+  levels = levels(x_train$Account.Age..Days.cat)
+)
+
+colnames(x_train_matrix)
+
+x_test_matrix <- model.matrix(
+  ~ . - 1,
+  data = x_test
+)
+
+dim(x_test_matrix)
+
+
+# Entrainement & Test
+
+dtrain <- xgb.DMatrix(
+  data = x_train_matrix,
+  label = y_train
+)
+
+dtest <- xgb.DMatrix(
+  data = x_test_matrix,
+  label = y_test
+)
+
+
+set.seed(123)
+
+model_xgb <- xgb.train(
+  params = list(
+    objective = "binary:logistic",     # classification binaire
+    eval_metric = "aucpr",             #la performance en tenant compte du déséquilibre
+    max_depth = 6,
+    eta = 0.1,                       #vitesse d'apprenti
+    subsample = 0.8,                 # 80% d'observation pour l'apprenti (les lignes (transactions))
+    colsample_bytree = 0.8           # 80% de varibale pour chaque arbre (les colonnes(variables) )
+  ), 
+  data = dtrain,
+  nrounds = 100
+)
+
+proba_xgb <- predict(model_xgb , dtest)
+
+
+head(proba_xgb, 5)
+
+classe_xgb <- ifelse(proba_xgb >= 0.5, 1, 0)
+
+head(classe_xgb)
+
+matrice_xgb <- table(
+  reel = y_test,
+  predict = classe_xgb
+)
+
+TN <- matrice_xgb["0","0"]
+FP <- matrice_xgb["0","1"]
+FN <- matrice_xgb["1","0"]
+TP <- matrice_xgb["1","1"]
+
+precision_xgb <- TP/(TP + FP)
+recall_xgb <- TP/(TP + FN)
+F1_score_xgb <- ( 2 * precision_xgb * recall_xgb)/(precision_xgb + recall_xgb)
+Accuracy_xgb <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_xgb * 100,
+  RC_b <- recall_xgb * 100,
+  F1_b <- F1_score_xgb * 100,
+  AC_b <- Accuracy_xgb * 100
+),2)
