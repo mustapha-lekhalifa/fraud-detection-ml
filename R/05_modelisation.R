@@ -12,6 +12,11 @@ names(x_test)
 str(y_train)
 table(y_train)
 
+#----------------------
+# Modele 1 : Logistique
+
+#-------------------------------------------
+# modelisation avec tous les autre variables "Meilleur performance"
 donnees_train = data.frame(
   fraude = y_train,
   x_train
@@ -74,6 +79,9 @@ length(y_test)
 
 
 summary(model)
+
+#------------------------------------------
+# Modelisation sans le transaction amount.... 
 model$converged
 
 # Vérifier les coefficients non estimés
@@ -167,5 +175,57 @@ round(c(
 sum(matrice_B)
 length(y_test)
 
+#--------------------------------------------
+# Modele 2 : Arbre de decision - Decision Tree
 
-classe_B <- ifelse(probabilite_B >= 0.5, 1, 0)
+library(rpart)
+
+donnees_tree <- data.frame(
+  fraude = y_train,
+  x_train
+)
+
+
+model_tree <- rpart(
+  fraude ~ .,
+  data = donnees_tree,
+  method = "class"
+  
+)
+
+donnees_tree_teste <- data.frame(
+  fraude = y_test,
+  x_test
+)
+
+classe_tree <- predict(
+  model_tree,
+  newdata= x_test,
+  type = "class"
+)
+
+matrice_tree <- table(
+  reel = y_test,
+  predict = classe_tree
+)
+
+TN <- matrice_tree["0","0"]
+FP <- matrice_tree["0","1"]
+FN <- matrice_tree["1","0"]
+TP <- matrice_tree["1","1"]
+
+
+precision_tree <- TP / (TP + FP)
+recall_tree <- TP / (TP + FN)
+F1_score_tree <- (2 * precision_tree * recall_tree)/(precision_tree + recall_tree)
+accracy_tree <- (TP + TN)/(TP + TN + FP +FN)
+
+
+round(c(
+  PR_t <- precision_tree * 100,
+  RC_t <-recall_tree * 100,
+  F1_t <- F1_score_tree * 100,
+  AC_t <- accracy_tree * 100
+),2)
+
+
