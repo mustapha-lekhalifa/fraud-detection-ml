@@ -382,3 +382,635 @@ round(c(
   F1_b <- F1_score_xgb * 100,
   AC_b <- Accuracy_xgb * 100
 ),2)
+
+#--------------------------------------------------------------
+# rougrepement des matrique pour les 4 modele sur le seuils 0.5
+
+comparaison_modeles <- data.frame(
+  Modele = c(
+    "Regression logistique",
+    "Arbre de decision",
+    "Random Forest",
+    "XGBoost"
+  ),
+  Precision = c(
+    82.76, 77.13, 77.33, 81.15
+  ),
+  Recall = c(
+    13.43, 12.58, 15.57, 15.29
+  ),
+  F1_score = c(
+    23.11, 21.64, 25.92, 25.73
+  ),
+  Accuracy = c(
+    95.52, 95.43, 95.54, 95.57
+  )
+)
+#-------------------------------------------------
+
+
+
+
+
+# amelioration du seuils 
+#les fraudes sont rares (environ 5 %). Il est donc possible que le modèle attribue des probabilités inférieures à 50 % à certaines vraies fraudes.
+
+
+seuils <- c( 0.5, 0.4, 0.3, 0.2, 0.1)
+
+#------------------------------------
+#le seuils de Xgboost de 0.4 à 0.1
+#-------------------------------------
+
+classe_xgb_04 <- ifelse(proba_xgb >= 0.4, 1, 0)
+
+
+matrice_xgb_04 <- table(
+  reel = y_test,
+  prediction = classe_xgb_04
+)
+
+TN <- matrice_xgb_04["0","0"]
+FP <- matrice_xgb_04["0","1"]
+FN <- matrice_xgb_04["1","0"]
+TP <- matrice_xgb_04["1","1"]
+
+precision_xgb_04 <- TP/(TP + FP)
+recall_xgb_04 <- TP/(TP + FN)
+F1_score_xgb_04 <- ( 2 * precision_xgb_04 * recall_xgb_04)/(precision_xgb_04 + recall_xgb_04)
+Accuracy_xgb_04 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_xgb_04 * 100,
+  RC_b <- recall_xgb_04 * 100,
+  F1_b <- F1_score_xgb_04 * 100,
+  AC_b <- Accuracy_xgb_04 * 100
+),2)
+
+
+classe_xgb_03 <- ifelse(proba_xgb >= 0.3, 1, 0)
+
+matrice_xgb_03 <- table(
+  reel = y_test,
+  prediction = classe_xgb_03
+)
+
+TN <- matrice_xgb_03["0","0"]
+FP <- matrice_xgb_03["0","1"]
+FN <- matrice_xgb_03["1","0"]
+TP <- matrice_xgb_03["1","1"]
+
+precision_xgb_03 <- TP/(TP + FP)
+recall_xgb_03 <- TP/(TP + FN)
+F1_score_xgb_03 <- ( 2 * precision_xgb_03 * recall_xgb_03)/(precision_xgb_03 + recall_xgb_03)
+Accuracy_xgb_03 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_xgb_03 * 100,
+  RC_b <- recall_xgb_03 * 100,
+  F1_b <- F1_score_xgb_03 * 100,
+  AC_b <- Accuracy_xgb_03 * 100
+),2)
+
+classe_xgb_02 <- ifelse(proba_xgb >= 0.2, 1, 0)
+
+matrice_xgb_02 <- table(
+  reel = y_test,
+  prediction = classe_xgb_02
+)
+
+
+TN <- matrice_xgb_02["0","0"]
+FP <- matrice_xgb_02["0","1"]
+FN <- matrice_xgb_02["1","0"]
+TP <- matrice_xgb_02["1","1"]
+
+precision_xgb_02 <- TP/(TP + FP)
+recall_xgb_02 <- TP/(TP + FN)
+F1_score_xgb_02 <- ( 2 * precision_xgb_02 * recall_xgb_02)/(precision_xgb_02 + recall_xgb_02)
+Accuracy_xgb_02 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_xgb_02 * 100,
+  RC_b <- recall_xgb_02 * 100,
+  F1_b <- F1_score_xgb_02 * 100,
+  AC_b <- Accuracy_xgb_02 * 100
+),2)
+
+
+classe_xgb_01 <- ifelse(proba_xgb >= 0.1, 1, 0)
+
+
+matrice_xgb_01 <- table(
+  reel = y_test,
+  prediction = classe_xgb_01
+)
+
+TN <- matrice_xgb_01["0","0"]
+FP <- matrice_xgb_01["0","1"]
+FN <- matrice_xgb_01["1","0"]
+TP <- matrice_xgb_01["1","1"]
+
+precision_xgb_01 <- TP/(TP + FP)
+recall_xgb_01 <- TP/(TP + FN)
+F1_score_xgb_01 <- ( 2 * precision_xgb_01 * recall_xgb_01)/(precision_xgb_01 + recall_xgb_01)
+Accuracy_xgb_01 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_xgb_01 * 100,
+  RC_b <- recall_xgb_01 * 100,
+  F1_b <- F1_score_xgb_01 * 100,
+  AC_b <- Accuracy_xgb_01 * 100
+),2)
+
+
+
+# Tableau Xgboost sur le suiles de 0.5 à 0.1 et notre choix c'est 0.2
+
+resultats_xgb <- data.frame(
+  Seuil = c(0.5, 0.4, 0.3, 0.2, 0.1),
+  Precision = c(81.15, 70.85, 46.20, 41.20, 24.73),
+  Recall = c(15.29, 17.84, 31.89, 38.16, 52.87),
+  F1_score = c(25.73, 28.50, 37.74, 39.62, 33.70),
+  Accuracy = c(95.57, 95.51, 94.72, 94.17, 89.56)
+)
+
+
+
+#------------------------------------
+#le seuils de regression logistique initial qui a meilleur F1_score de 0.4 à 0.1
+#-------------------------------------
+
+
+classe_init_04 <- ifelse(probabilite_init >= 0.4, 1, 0)
+
+
+matrice_init_04 <- table(
+  reel = y_test,
+  prediction = classe_init_04
+)
+
+TN <- matrice_init_04["0","0"]
+FP <- matrice_init_04["0","1"]
+FN <- matrice_init_04["1","0"]
+TP <- matrice_init_04["1","1"]
+
+precision_init_04 <- TP/(TP + FP)
+recall_init_04 <- TP/(TP + FN)
+F1_score_init_04 <- ( 2 * precision_init_04 * recall_init_04)/(precision_init_04 + recall_init_04)
+Accuracy_init_04 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_init_04 * 100,
+  RC_b <- recall_init_04 * 100,
+  F1_b <- F1_score_init_04 * 100,
+  AC_b <- Accuracy_init_04 * 100
+),2)
+
+
+classe_init_03 <- ifelse( probabilite_init >= 0.3, 1, 0)
+
+
+matrice_init_03 <- table(
+  reel = y_test,
+  prediction = classe_init_03
+)
+
+TN <- matrice_init_03["0","0"]
+FP <- matrice_init_03["0","1"]
+FN <- matrice_init_03["1","0"]
+TP <- matrice_init_03["1","1"]
+
+precision_init_03 <- TP/(TP + FP)
+recall_init_03 <- TP/(TP + FN)
+F1_score_init_03 <- ( 2 * precision_init_03 * recall_init_03)/(precision_init_03 + recall_init_03)
+Accuracy_init_03 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_init_03 * 100,
+  RC_b <- recall_init_03 * 100,
+  F1_b <- F1_score_init_03 * 100,
+  AC_b <- Accuracy_init_03 * 100
+),2)
+
+
+
+classe_init_02 <- ifelse( probabilite_init >= 0.2, 1, 0)
+
+
+matrice_init_02 <- table(
+  reel = y_test,
+  prediction = classe_init_02
+)
+
+TN <- matrice_init_02["0","0"]
+FP <- matrice_init_02["0","1"]
+FN <- matrice_init_02["1","0"]
+TP <- matrice_init_02["1","1"]
+
+precision_init_02 <- TP/(TP + FP)
+recall_init_02 <- TP/(TP + FN)
+F1_score_init_02 <- ( 2 * precision_init_02 * recall_init_02)/(precision_init_02 + recall_init_02)
+Accuracy_init_02 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_init_02 * 100,
+  RC_b <- recall_init_02 * 100,
+  F1_b <- F1_score_init_02 * 100,
+  AC_b <- Accuracy_init_02 * 100
+),2)
+
+
+
+classe_init_01 <- ifelse( probabilite_init >= 0.1, 1, 0)
+
+matrice_init_01 <- table(
+  reel = y_test,
+  prediction = classe_init_01
+)
+
+TN <- matrice_init_01["0","0"]
+FP <- matrice_init_01["0","1"]
+FN <- matrice_init_01["1","0"]
+TP <- matrice_init_01["1","1"]
+
+precision_init_01 <- TP/(TP + FP)
+recall_init_01 <- TP/(TP + FN)
+F1_score_init_01 <- ( 2 * precision_init_01 * recall_init_01)/(precision_init_01 + recall_init_01)
+Accuracy_init_01 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_init_01 * 100,
+  RC_b <- recall_init_01 * 100,
+  F1_b <- F1_score_init_01 * 100,
+  AC_b <- Accuracy_init_01 * 100
+),2)
+
+# Tableau logistique sur le suiles de 0.5 à 0.1 et notre choix c'est 0.2
+
+resultats_log <- data.frame(
+  Seuil = c(0.5, 0.4, 0.3, 0.2, 0.1),
+  Precision = c(82.76, 76.26, 64.28, 43.81, 23.15),
+  Recall = c(13.43, 15.37, 18.43, 28.64, 46.86),
+  F1_score = c(23.11, 25.58, 28.64, 34.63, 30.99),
+  Accuracy = c(95.52, 95.52, 95.40, 94.58, 89.53)
+)
+
+#------------------------------------
+#le seuils de random forest
+#-------------------------------------
+
+
+class(donnees_random$fraude)
+
+model_random_prob <- ranger(
+  fraude ~ .,
+  data = donnees_random,
+  num.trees = 100,
+  probability = TRUE,
+  seed = 123
+)
+
+predict_random_prob <- predict(
+  model_random_prob,
+  data = x_test
+)
+
+proba_random <- predict_random_prob$predictions[, "1"]
+
+head(proba_random, 5)
+
+classe_random <- ifelse(proba_random >= 0.5, 1, 0)
+
+matrice_random_05 <- table(
+  reel = y_test,
+  prediction = classe_random
+)
+
+TN <- matrice_random_05["0","0"]
+FP <- matrice_random_05["0","1"]
+FN <- matrice_random_05["1","0"]
+TP <- matrice_random_05["1","1"]
+
+precision_random_05 <- TP/(TP + FP)
+recall_random_05 <- TP/(TP + FN)
+F1_score_random_05 <- ( 2 * precision_random_05 * recall_random_05)/(precision_random_05 + recall_random_05)
+Accuracy_random_05 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_random_05 * 100,
+  RC_b <- recall_random_05 * 100,
+  F1_b <- F1_score_random_05 * 100,
+  AC_b <- Accuracy_random_05 * 100
+),2)
+
+
+
+
+
+classe_random <- ifelse(proba_random >= 0.4, 1, 0)
+
+matrice_random_04 <- table(
+  reel = y_test,
+  prediction = classe_random
+)
+
+TN <- matrice_random_04["0","0"]
+FP <- matrice_random_04["0","1"]
+FN <- matrice_random_04["1","0"]
+TP <- matrice_random_04["1","1"]
+
+precision_random_04 <- TP/(TP + FP)
+recall_random_04 <- TP/(TP + FN)
+F1_score_random_04 <- ( 2 * precision_random_04 * recall_random_04)/(precision_random_04 + recall_random_04)
+Accuracy_random_04 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_random_04 * 100,
+  RC_b <- recall_random_04 * 100,
+  F1_b <- F1_score_random_04 * 100,
+  AC_b <- Accuracy_random_04 * 100
+),2)
+
+
+classe_random <- ifelse(proba_random >= 0.3, 1, 0)
+
+matrice_random_03 <- table(
+  reel = y_test,
+  prediction = classe_random
+)
+
+TN <- matrice_random_03["0","0"]
+FP <- matrice_random_03["0","1"]
+FN <- matrice_random_03["1","0"]
+TP <- matrice_random_03["1","1"]
+
+precision_random_03 <- TP/(TP + FP)
+recall_random_03 <- TP/(TP + FN)
+F1_score_random_03 <- ( 2 * precision_random_03 * recall_random_03)/(precision_random_03 + recall_random_03)
+Accuracy_random_03 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_random_03 * 100,
+  RC_b <- recall_random_03 * 100,
+  F1_b <- F1_score_random_03 * 100,
+  AC_b <- Accuracy_random_03 * 100
+),2)
+
+
+
+classe_random <- ifelse(proba_random >= 0.2, 1, 0)
+
+matrice_random_02 <- table(
+  reel = y_test,
+  prediction = classe_random
+)
+
+TN <- matrice_random_02["0","0"]
+FP <- matrice_random_02["0","1"]
+FN <- matrice_random_02["1","0"]
+TP <- matrice_random_02["1","1"]
+
+precision_random_02 <- TP/(TP + FP)
+recall_random_02 <- TP/(TP + FN)
+F1_score_random_02 <- ( 2 * precision_random_02 * recall_random_02)/(precision_random_02 + recall_random_02)
+Accuracy_random_02 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_random_02 * 100,
+  RC_b <- recall_random_02 * 100,
+  F1_b <- F1_score_random_02 * 100,
+  AC_b <- Accuracy_random_02 * 100
+),2)
+
+
+
+
+classe_random <- ifelse(proba_random >= 0.1, 1, 0)
+
+matrice_random_01 <- table(
+  reel = y_test,
+  prediction = classe_random
+)
+
+TN <- matrice_random_01["0","0"]
+FP <- matrice_random_01["0","1"]
+FN <- matrice_random_01["1","0"]
+TP <- matrice_random_01["1","1"]
+
+precision_random_01 <- TP/(TP + FP)
+recall_random_01 <- TP/(TP + FN)
+F1_score_random_01 <- ( 2 * precision_random_01 * recall_random_01)/(precision_random_01 + recall_random_01)
+Accuracy_random_01 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_random_01 * 100,
+  RC_b <- recall_random_01 * 100,
+  F1_b <- F1_score_random_01 * 100,
+  AC_b <- Accuracy_random_01 * 100
+),2)
+
+
+
+
+# tableau de random sur les seuils (0.5 à 0.1) et le choix est 0.2
+
+resultats_random <- data.frame(
+  Seuil = c(0.5, 0.4, 0.3, 0.2, 0.1),
+  Precision = c(79.09, 61.61, 45.93, 37.82, 21.64),
+  Recall = c(15.49, 20.38, 31.61, 39.86, 54.46),
+  F1_score = c(25.91, 30.63, 37.45, 38.82, 30.97),
+  Accuracy = c(95.56, 95.37, 94.70, 93.70, 87.82)
+)
+
+
+
+#------------------------------------
+#le seuils de arbre de decision
+#-------------------------------------
+
+model_proba_tree <- predict(
+  model_tree,
+  newdata = x_test,
+  type="prob"
+)
+
+proba_tree <- model_proba_tree[, "1"]
+
+classe_tree <- ifelse(proba_tree >= 0.5, 1, 0)
+
+matrice_tree_05 <- table(
+  reel = y_test,
+  prediction = classe_tree
+)
+
+TN <- matrice_tree_05["0","0"]
+FP <- matrice_tree_05["0","1"]
+FN <- matrice_tree_05["1","0"]
+TP <- matrice_tree_05["1","1"]
+
+precision_tree_05 <- TP/(TP + FP)
+recall_tree_05 <- TP/(TP + FN)
+F1_score_tree_05 <- ( 2 * precision_tree_05 * recall_tree_05)/(precision_tree_05 + recall_tree_05)
+Accuracy_tree_05 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_tree_05 * 100,
+  RC_b <- recall_tree_05 * 100,
+  F1_b <- F1_score_tree_05 * 100,
+  AC_b <- Accuracy_tree_05 * 100
+),2)
+
+
+
+
+classe_tree <- ifelse(proba_tree >= 0.4, 1, 0)
+
+matrice_tree_04 <- table(
+  reel = y_test,
+  prediction = classe_tree
+)
+
+TN <- matrice_tree_04["0","0"]
+FP <- matrice_tree_04["0","1"]
+FN <- matrice_tree_04["1","0"]
+TP <- matrice_tree_04["1","1"]
+
+precision_tree_04 <- TP/(TP + FP)
+recall_tree_04 <- TP/(TP + FN)
+F1_score_tree_04 <- ( 2 * precision_tree_04 * recall_tree_04)/(precision_tree_04 + recall_tree_04)
+Accuracy_tree_04 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_tree_04 * 100,
+  RC_b <- recall_tree_04 * 100,
+  F1_b <- F1_score_tree_04 * 100,
+  AC_b <- Accuracy_tree_04 * 100
+),2)
+
+
+
+
+classe_tree <- ifelse(proba_tree >= 0.3, 1, 0)
+
+matrice_tree_03 <- table(
+  reel = y_test,
+  prediction = classe_tree
+)
+
+TN <- matrice_tree_03["0","0"]
+FP <- matrice_tree_03["0","1"]
+FN <- matrice_tree_03["1","0"]
+TP <- matrice_tree_03["1","1"]
+
+precision_tree_03 <- TP/(TP + FP)
+recall_tree_03 <- TP/(TP + FN)
+F1_score_tree_03 <- ( 2 * precision_tree_03 * recall_tree_03)/(precision_tree_03 + recall_tree_03)
+Accuracy_tree_03 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_tree_03 * 100,
+  RC_b <- recall_tree_03 * 100,
+  F1_b <- F1_score_tree_03 * 100,
+  AC_b <- Accuracy_tree_03 * 100
+),2)
+
+
+
+
+classe_tree <- ifelse(proba_tree >= 0.2, 1, 0)
+
+matrice_tree_02 <- table(
+  reel = y_test,
+  prediction = classe_tree
+)
+
+TN <- matrice_tree_02["0","0"]
+FP <- matrice_tree_02["0","1"]
+FN <- matrice_tree_02["1","0"]
+TP <- matrice_tree_02["1","1"]
+
+precision_tree_02 <- TP/(TP + FP)
+recall_tree_02 <- TP/(TP + FN)
+F1_score_tree_02 <- ( 2 * precision_tree_02 * recall_tree_02)/(precision_tree_02 + recall_tree_02)
+Accuracy_tree_02 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_tree_02 * 100,
+  RC_b <- recall_tree_02 * 100,
+  F1_b <- F1_score_tree_02 * 100,
+  AC_b <- Accuracy_tree_02 * 100
+),2)
+
+
+
+
+classe_tree <- ifelse(proba_tree >= 0.1, 1, 0)
+
+matrice_tree_01 <- table(
+  reel = y_test,
+  prediction = classe_tree
+)
+
+TN <- matrice_tree_01["0","0"]
+FP <- matrice_tree_01["0","1"]
+FN <- matrice_tree_01["1","0"]
+TP <- matrice_tree_01["1","1"]
+
+precision_tree_01 <- TP/(TP + FP)
+recall_tree_01 <- TP/(TP + FN)
+F1_score_tree_01 <- ( 2 * precision_tree_01 * recall_tree_01)/(precision_tree_01 + recall_tree_01)
+Accuracy_tree_01 <- (TN + TP)/(TN + TP + FN + FP)
+
+
+round(c(
+  PR_b <- precision_tree_01 * 100,
+  RC_b <- recall_tree_01 * 100,
+  F1_b <- F1_score_tree_01 * 100,
+  AC_b <- Accuracy_tree_01 * 100
+),2)
+
+
+
+resultats_tree <- data.frame(
+  Seuil = c(0.5, 0.4, 0.3, 0.2, 0.1),
+  Precision = c(77.13, 77.13, 77.13, 77.13, 77.13),
+  Recall = c(12.58, 12.58, 12.58, 12.58, 12.58),
+  F1_score = c(21.64, 21.64, 21.64, 21.64, 21.64),
+  Accuracy = c(95.43, 95.43, 95.43, 95.43, 95.43)
+)
+
+
+# Comparaison le choix de meilleur modele dans chaque seuils
+comparaison_model <- data.frame(
+  Model = c(
+    "Regression logistique",
+    "Arbre de decision",
+    "Random Forest",
+    "XGBoost"
+  ),
+  Seuil_optimal = c(0.2, 0.5, 0.2, 0.2),
+  Precision = c(43.81, 77.13, 37.82, 41.20),
+  Recall = c(28.64, 12.58, 39.86, 38.16),
+  F1_score = c(34.63, 21.64, 38.82, 39.62),
+  Accuracy = c(94.58, 95.43, 93.70, 94.17)
+)
+
+
