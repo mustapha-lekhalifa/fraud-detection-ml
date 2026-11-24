@@ -1,4 +1,4 @@
-data <- read.csv("data/raw/Processed_data_FD.csv")
+data <- read.csv("Processed_data_FD.csv")
 
 View(data)
 
