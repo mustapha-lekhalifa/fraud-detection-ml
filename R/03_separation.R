@@ -45,3 +45,11 @@ length(y_test)
 prop.table(table(y_train))*100
 prop.table(table(y_test))*100
 
+
+# Nous avons envisagé d'appliquer la loi de Benford à la variable Transaction Amount. 
+# Cependant, les montants présents dans le jeu de données sont déjà normalisés entre 0 et 1. 
+# Nous ne disposons donc pas des montants bruts nécessaires pour appliquer cette loi de manière pertinente.
+
+summary(data$Transaction.Amount....)
+
+summary(x_train$Transaction.Amount....)
