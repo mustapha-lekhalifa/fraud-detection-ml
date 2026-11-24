@@ -1013,4 +1013,360 @@ comparaison_model <- data.frame(
   Accuracy = c(94.58, 95.43, 93.70, 94.17)
 )
 
+#---------------------------------------- LA FIN -----------------------------------------------------------------------------------------------------------
 
+
+# on va verifier en travaillant avec partie validation avant qu'on fait test
+# si on utilise le test pour choisir le meilleur seuil, 
+# on finit par adapter notre modèle aux données censées servir à vérifier sa capacité de généralisation.
+ls()
+
+
+prop.table(table(y_train)) * 100
+
+library(caret)
+set.seed(123)
+
+indice_valid <- createDataPartition(
+  y_train,
+  p=0.8,
+  list = FALSE
+)
+
+x_train_new <- x_train[indice_valid, ]
+y_train_new <- y_train[indice_valid]
+
+x_valid <- x_train[-indice_valid, ]
+y_valid <- y_train[-indice_valid]
+
+
+prop.table(table(y_train_new)) * 100
+prop.table(table(y_valid)) * 100
+
+
+dim(x_train_new)
+dim(x_valid)
+dim(x_test)
+
+ls(pattern = "model")
+
+
+file.edit("R/05_modelisation.R")
+
+
+
+
+
+
+
+#----------------------------------------
+# Nouvelle modelisation : validation
+# Modele 1 : Regression logistique
+
+
+# donnees d'entrainement
+donnees_train_new <- data.frame(
+  fraude = y_train_new,
+  x_train_new
+)
+
+# donnees de validation
+donnees_valid <- data.frame(
+  x_valid
+)
+
+modele_log_valid <- glm(
+  fraude ~ .,
+  data = donnees_train_new, # aplliquer le modele sur le donnees d'entrainement 
+  family = binomial()
+)
+
+
+proba_log_valid <- predict(
+  modele_log_valid,
+  newdata = donnees_valid,
+  type = "response"
+)
+
+# Fonction d'evaluation des modeles selon plusieurs seuils
+
+evaluer_seuils <- function(y_reel, probabilites, seuils = c(0.5, 0.4, 0.3, 0.2, 0.1)) {
+  
+  resultats <- data.frame()
+  
+  for (seuil in seuils) {
+    
+    predictions <- ifelse(probabilites >= seuil, 1, 0)
+    
+    TP <- sum(predictions == 1 & y_reel == 1)
+    FP <- sum(predictions == 1 & y_reel == 0)
+    FN <- sum(predictions == 0 & y_reel == 1)
+    
+    precision <- TP / (TP + FP)
+    recall <- TP / (TP + FN)
+    F1 <- 2 * precision * recall / (precision + recall)
+    
+    resultats <- rbind(
+      resultats,
+      data.frame(
+        Seuil = seuil,
+        Precision = precision * 100,
+        Recall = recall * 100,
+        F1 = F1 * 100
+      )
+    )
+  }
+  
+  return(resultats)
+}
+
+# Evaluation de la regression logistique sur validation
+
+resultats_log_valid <- evaluer_seuils(
+  y_reel = y_valid,
+  probabilites = proba_log_valid
+)
+
+print(round(resultats_log_valid, 2))
+
+
+
+
+
+
+
+
+#----------------------------------------
+# Modele 2 : Arbre de decision
+
+
+library(rpart)
+
+donnees_tree_new <- data.frame(
+  fraude = as.factor(y_train_new),
+  x_train_new
+)
+
+modele_tree_valid <- rpart(
+  fraude ~ .,
+  data = donnees_tree_new,
+  method = "class"
+)
+
+# Probabilites sur validation
+proba_tree_valid <- predict(
+  modele_tree_valid,
+  newdata = x_valid,
+  type = "prob"
+)[, "1"]
+
+# Evaluation selon les differents seuils
+resultats_tree_valid <- evaluer_seuils(
+  y_reel = y_valid,
+  probabilites = proba_tree_valid
+)
+
+print(round(resultats_tree_valid, 2))
+
+
+
+
+
+
+
+
+#----------------------------------------
+# Modele 3 : Random Forest
+
+
+library(ranger)
+
+donnees_random_new <- data.frame(
+  fraude = as.factor(y_train_new),
+  x_train_new
+)
+
+set.seed(123)
+
+modele_random_valid <- ranger(
+  fraude ~ .,
+  data = donnees_random_new,
+  num.trees = 100,
+  probability = TRUE,
+  seed = 123
+)
+
+# Probabilites sur validation
+proba_random_valid <- predict(
+  modele_random_valid,
+  data = x_valid
+)$predictions[, "1"]
+
+# Evaluation selon les differents seuils
+resultats_random_valid <- evaluer_seuils(
+  y_reel = y_valid,
+  probabilites = proba_random_valid
+)
+
+print(round(resultats_random_valid, 2))
+
+
+
+
+
+
+
+
+#----------------------------------------
+# Modele 4 : XGBoost
+
+
+library(xgboost)
+
+# Encodage des variables
+x_train_new$Account.Age..Days.cat <- factor(
+  x_train_new$Account.Age..Days.cat
+)
+
+x_valid$Account.Age..Days.cat <- factor(
+  x_valid$Account.Age..Days.cat,
+  levels = levels(x_train_new$Account.Age..Days.cat)
+)
+
+x_train_matrix_new <- model.matrix(
+  ~ . - 1,
+  data = x_train_new
+)
+
+x_valid_matrix <- model.matrix(
+  ~ . - 1,
+  data = x_valid
+)
+
+# Creation des matrices XGBoost
+dtrain_new <- xgb.DMatrix(
+  data = x_train_matrix_new,
+  label = y_train_new
+)
+
+dvalid <- xgb.DMatrix(
+  data = x_valid_matrix,
+  label = y_valid
+)
+
+# Entrainement
+set.seed(123)
+
+modele_xgb_valid <- xgb.train(
+  params = list(
+    objective = "binary:logistic",
+    eval_metric = "aucpr",
+    max_depth = 6,
+    eta = 0.1,
+    subsample = 0.8,
+    colsample_bytree = 0.8
+  ),
+  data = dtrain_new,
+  nrounds = 100
+)
+
+# Probabilites sur validation
+proba_xgb_valid <- predict(
+  modele_xgb_valid,
+  dvalid
+)
+
+# Evaluation selon les differents seuils
+resultats_xgb_valid <- evaluer_seuils(
+  y_reel = y_valid,
+  probabilites = proba_xgb_valid
+)
+
+print(round(resultats_xgb_valid, 2))
+
+
+
+# xgboost a eu meilleur performence au seuils de 0.2 
+
+
+
+#----------------------------------------
+# Evaluation finale : XGBoost
+
+
+# Preparation des variables categorielles
+x_train$Account.Age..Days.cat <- factor(
+  x_train$Account.Age..Days.cat
+)
+
+x_test$Account.Age..Days.cat <- factor(
+  x_test$Account.Age..Days.cat,
+  levels = levels(x_train$Account.Age..Days.cat)
+)
+
+# Transformation en matrices numeriques
+x_train_matrix_final <- model.matrix(
+  ~ . - 1,
+  data = x_train
+)
+
+x_test_matrix_final <- model.matrix(
+  ~ . - 1,
+  data = x_test
+)
+
+# Creation des matrices XGBoost
+dtrain_final <- xgb.DMatrix(
+  data = x_train_matrix_final,
+  label = y_train
+)
+
+dtest_final <- xgb.DMatrix(
+  data = x_test_matrix_final,
+  label = y_test
+)
+
+# Entrainement sur toutes les donnees d'entrainement
+set.seed(123)
+
+modele_xgb_final <- xgb.train(
+  params = list(
+    objective = "binary:logistic",
+    eval_metric = "aucpr",
+    max_depth = 6,
+    eta = 0.1,
+    subsample = 0.8,
+    colsample_bytree = 0.8
+  ),
+  data = dtrain_final,
+  nrounds = 100
+)
+
+# Probabilites sur le jeu de test
+proba_xgb_final <- predict(
+  modele_xgb_final,
+  dtest_final
+)
+
+
+resultats_xgb_final <- evaluer_seuils(
+  y_reel = y_test,
+  probabilites = proba_xgb_final,
+  seuils = 0.2
+)
+
+print(round(resultats_xgb_final, 2))
+
+
+classe_xgb_final <- ifelse(
+  proba_xgb_final >= 0.2,
+  1,
+  0
+)
+
+matrice_xgb_final <- table(
+  Prediction = classe_xgb_final,
+  Reel = y_test
+)
+
+print(matrice_xgb_final)
